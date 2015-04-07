@@ -25,7 +25,25 @@ def compare(lines1, lines2):
             return False
     return True
 
+def parse_input(filename):
+    with open(filename) as handle:
+        names = {}
+        lines = handle.readlines()
+        n = lines[0]
+        lines = lines[1:]
+        for line in lines:
+            if line.startswith("#") or line.startswith("\n"):
+                continue
+            tokens = line.split(" ")
+            head = tokens[0]
+            rest = tokens[1:]
+            if len(head) == 1:
+                names[head] = {'name': rest}
+        return names
+
 def main(): 
+    names = parse_input("sm-friends.in") 
+    print names
 
 if __name__ == "__main__":
     main()
