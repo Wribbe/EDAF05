@@ -36,7 +36,7 @@ def parse_input(filename):
             head = tokens[0]
             rest = tokens[1:]
             if ":" not in head:
-                names[head] = {'name': rest}
+                names[head] = {'name': rest[0].strip()}
             else:
                 head = head.replace(':','')
                 names[head]["preference"] = rest
@@ -49,8 +49,41 @@ def parse_input(filename):
                 female[key] = data
         return male,female
 
+def match(man_id, woman_id, females):
+    current_woman = females[woman_id]
+    current_man = current_woman.get("current")
+    if current_man == None:
+        current_woman["current"] = man_id
+        return True, None
+    else:
+        for pref_id in current_woman["preference"]:
+            if current_man in pref_id:
+                return False, None
+            if man_id in pref_id:
+                return True, current
+
+def pair_up(males, females):
+    available_men = males.keys()
+    while(len(available_men) != 0): 
+        current_man = available_men[0]
+        for woman_id in males[current_man]["preference"]:
+            did_match, current = match(current_man, woman_id, females)
+            if did_match:
+                males[current_man]["current"] = woman_id
+                available_men.remove(current_man)
+                if current:
+                    available_men.add(current)
+                break
+            continue
+
+def fancy_print(males, females):
+    for _, data in males.iteritems():
+        print "{} -- {}".format(data["name"],females[data["current"]]["name"])
+
 def main(): 
-    male, female = parse_input("sm-friends.in") 
+    males, females = parse_input("sm-friends.in") 
+    pair_up(males,females)
+    fancy_print(males, females)
 
 if __name__ == "__main__":
     main()
