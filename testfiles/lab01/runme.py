@@ -29,16 +29,17 @@ def parse_input(filename):
     with open(filename) as handle:
         names = {}
         lines = handle.readlines()
-        n = lines[0]
-        lines = lines[1:]
         for line in lines:
-            if line.startswith("#") or line.startswith("\n"):
+            if line.startswith("#") or line.startswith("\n") or "n=" in line:
                 continue
             tokens = line.split(" ")
             head = tokens[0]
             rest = tokens[1:]
             if len(head) == 1:
                 names[head] = {'name': rest}
+            else:
+                head = head.replace(':','')
+                names[head]["preference"] = rest
         return names
 
 def main(): 
