@@ -60,7 +60,7 @@ def match(man_id, woman_id, females):
             if current_man in pref_id:
                 return False, None
             if man_id in pref_id:
-                return True, current
+                return True, current_man
 
 def pair_up(males, females):
     available_men = males.keys()
@@ -72,7 +72,7 @@ def pair_up(males, females):
                 males[current_man]["current"] = woman_id
                 available_men.remove(current_man)
                 if current:
-                    available_men.add(current)
+                    available_men.append(current)
                 break
             continue
 
@@ -81,7 +81,8 @@ def fancy_print(males, females):
         print "{} -- {}".format(data["name"],females[data["current"]]["name"])
 
 def main(): 
-    males, females = parse_input("sm-friends.in") 
+    input_filename = sys.argv[1]
+    males, females = parse_input(input_filename) 
     pair_up(males,females)
     fancy_print(males, females)
 
