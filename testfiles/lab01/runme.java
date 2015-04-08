@@ -7,14 +7,19 @@ import java.io.*;
 
 class Runme {
 
+    // needed data structures
     private static Integer[] current_partners;
     private static List<List<Integer>> preferences;
     private static String[] names;
 
     public static void main(String[] args) {
+
+        // pad structures so index 0 is not used
         String filename = args[0];
         List<String> lines = new ArrayList<String>();
         int n = 0;
+
+        // read lines from file and parse them
         try {
             lines = Files.readAllLines(Paths.get(filename), Charset.defaultCharset());
         } catch (IOException e) {
@@ -31,6 +36,7 @@ class Runme {
             parsedLines.add(line);
         }
 
+        // initialize data structures
         current_partners = new Integer[n*2+1];
         preferences = new ArrayList<List<Integer>>(n*2+1);
         preferences.add(new ArrayList<Integer>());
@@ -39,14 +45,15 @@ class Runme {
         names[0] = "-1";
         current_partners[0] = -1;
 
+        // parse the input and store it in name- or preference-structure
         boolean doing_preferences = false;
-
         for (String line : parsedLines) {
             if (line.equals("")) {
                 doing_preferences = true;
                 continue;
             }
             if (!doing_preferences) {
+                // put in preferences
                 String[] tokens = line.split(" ");
                 int id = Integer.valueOf(tokens[0]);
                 String name = tokens[1];
@@ -54,6 +61,7 @@ class Runme {
                 current_partners[id] = -1;
                 preferences.add(new ArrayList<Integer>());
             } else {
+                // put in names
                 String[] tokens = line.split(":");
                 int id = Integer.valueOf(tokens[0]);
                 String[] preference_tokens = tokens[1].split(" ");
@@ -68,10 +76,13 @@ class Runme {
             }
         }
 
+        // initialize the male_stack
         Stack<Integer> male_stack = new Stack<Integer>();
         for(int i=1; i<n*2+1; i = i+2) {
             male_stack.push(i);
         }
+        
+        // iterate through the male_stack until empty
         int current_male;
         for(;;) {
             try {
@@ -80,11 +91,14 @@ class Runme {
                 for (Integer female_id : male_preferences) {
                     int match_return = match(current_male, female_id);
                     if (match_return == 0) {
+                        // she prefers the current to the new one
                         continue;
                     } else if (match_return > 0) {
+                        // she prefers the new one to the current returns current
                         male_stack.push(match_return);
                         break;
                     } else if (match_return < 0) {
+                        // there was an instantaneous match
                         break;
                     }
                 }
