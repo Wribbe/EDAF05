@@ -6,6 +6,11 @@ import java.nio.charset.Charset;
 import java.io.*;
 
 class Runme {
+
+    private static Integer[] current_partners;
+    private static List<List<Integer>> preferences;
+    private static String[] names;
+
     public static void main(String[] args) {
         String filename = args[0];
         List<String> lines = new ArrayList<String>();
@@ -26,13 +31,13 @@ class Runme {
             parsedLines.add(line);
         }
 
-        Integer[] current_partners = new Integer[n*2+1];
-        current_partners[0] = -1;
+        current_partners = new Integer[n*2+1];
+        preferences = new ArrayList<List<Integer>>(n*2+1);
+        preferences.add(new ArrayList<Integer>());
+        names = new String[n*2+1];
 
-        List<List<Integer>> preferences = new ArrayList<List<Integer>>(n*2+1);
-
-        String[] names = new String[n*2+1];
         names[0] = "-1";
+        current_partners[0] = -1;
 
         boolean doing_preferences = false;
 
@@ -46,6 +51,8 @@ class Runme {
                 int id = Integer.valueOf(tokens[0]);
                 String name = tokens[1];
                 names[id] = name;
+                current_partners[id] = -1;
+                preferences.add(new ArrayList<Integer>());
             } else {
                 String[] tokens = line.split(":");
                 int id = Integer.valueOf(tokens[0]);
@@ -57,10 +64,61 @@ class Runme {
                     }
                     current_preferences.add(Integer.valueOf(preference.trim()));
                 }
+                preferences.add(id, current_preferences);
             }
         }
-        for (String name : names) {
-            System.out.println(name);
+
+        Stack<Integer> male_stack = new Stack<Integer>();
+        for(int i=1; i<n*2+1; i = i+2) {
+            male_stack.push(i);
         }
+        int current_male;
+        for(;;) {
+            try {
+                current_male = male_stack.pop();
+                List<Integer> male_preferences = preferences.get(current_male);
+                for (Integer female_id : male_preferences) {
+                    int match_return = match(current_male, female_id);
+                    if (match_return == 0) {
+                        continue;
+                    } else if (match_return > 0) {
+                        male_stack.push(match_return);
+                        break;
+                    } else if (match_return < 0) {
+                        break;
+                    }
+                }
+            } catch (EmptyStackException e) {
+                break;
+            }
+        }
+        int male_name_index, female_name_index;
+        for(int i = 1; i<n*2+1; i = i+2) {
+            male_name_index = i;
+            female_name_index = current_partners[male_name_index];
+            System.out.println(String.format("%s -- %s",
+                        names[male_name_index],
+                        names[female_name_index]));
+        }
+    }
+    public static int match(int male_id, int female_id) {
+        int current_male = current_partners[female_id];
+        if (current_male < 0) {
+            current_partners[female_id] = male_id;
+            current_partners[male_id] = female_id;
+            return -1;
+        }
+        List<Integer> female_preference = preferences.get(female_id);
+        for (Integer pref_id : female_preference) {
+            if (pref_id == current_male) {
+                return 0;
+            } else if (pref_id == male_id) {
+                current_partners[female_id] = male_id;
+                current_partners[male_id] = female_id;
+                current_partners[current_male] = -1;
+                return current_male;
+            }
+        }
+        return -4;
     }
 }
