@@ -53,7 +53,7 @@ class Runme {
                 continue;
             }
             if (!doing_preferences) {
-                // put in preferences
+                // put in names
                 String[] tokens = line.split(" ");
                 int id = Integer.valueOf(tokens[0]);
                 String name = tokens[1];
@@ -61,7 +61,7 @@ class Runme {
                 current_partners[id] = -1;
                 preferences.add(new ArrayList<Integer>());
             } else {
-                // put in names
+                // put in preferences
                 String[] tokens = line.split(":");
                 int id = Integer.valueOf(tokens[0]);
                 String[] preference_tokens = tokens[1].split(" ");
@@ -70,7 +70,8 @@ class Runme {
                     if (preference.equals("")) {
                         continue;
                     }
-                    current_preferences.add(Integer.valueOf(preference.trim()));
+                    int id_value = Integer.valueOf(preference.trim());
+                    current_preferences.add(id_value, id_value);
                 }
                 preferences.add(id, current_preferences);
             }
@@ -84,26 +85,20 @@ class Runme {
         
         // iterate through the male_stack until empty
         int current_male;
-        for(;;) {
-            try {
-                current_male = male_stack.pop();
-                List<Integer> male_preferences = preferences.get(current_male);
-                for (Integer female_id : male_preferences) {
-                    int match_return = match(current_male, female_id);
-                    if (match_return == 0) {
-                        // she prefers the current to the new one
-                        continue;
-                    } else if (match_return > 0) {
-                        // she prefers the new one to the current returns current
-                        male_stack.push(match_return);
-                        break;
-                    } else if (match_return < 0) {
-                        // there was an instantaneous match
-                        break;
-                    }
+        while(!male_stack.isEmpty()) {
+            current_male = male_stack.pop();
+            List<Integer> male_preferences = preferences.get(current_male);
+            for (Integer female_id : male_preferences) {
+                int match_return = match(current_male, female_id);
+                if (match_return == 0) {
+                    // she prefers the current to the new one
+                    continue;
+                } else if (match_return > 0) { // she prefers the new one to the current returns current male_stack.push(match_return);
+                    break;
+                } else if (match_return < 0) {
+                    // there was an instantaneous match
+                    break;
                 }
-            } catch (EmptyStackException e) {
-                break;
             }
         }
         int male_name_index, female_name_index;
@@ -116,6 +111,7 @@ class Runme {
         }
     }
     public static int match(int male_id, int female_id) {
+        int current_index, new_index;
         int current_male = current_partners[female_id];
         if (current_male < 0) {
             current_partners[female_id] = male_id;
@@ -124,9 +120,12 @@ class Runme {
         }
         List<Integer> female_preference = preferences.get(female_id);
         for (Integer pref_id : female_preference) {
-            if (pref_id == current_male) {
+            i
+            new_index = female_preference.indexOf(male_id);
+            current_index = female_preference.indexOf(current_male);
+            if (current_index < new_index) {
                 return 0;
-            } else if (pref_id == male_id) {
+            } else if (new_index < current_index) {
                 current_partners[female_id] = male_id;
                 current_partners[male_id] = female_id;
                 current_partners[current_male] = -1;

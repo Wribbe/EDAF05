@@ -5,7 +5,8 @@ mkdir output
 
 for file in ./*
 do
-  if [[ $file == *"sm"* && $file != *"5000"* && $file == *".in" && $file != *"worst"* ]]; then
+  #if [[ $file == *"sm"* && $file != *"5000"* && $file == *".in" && $file != *"worst"* ]]; then
+  if [[ $file == *"sm"* && $file != *"5000"* && $file == *".in" ]]; then
     fileTokens=(${file//./ })
     filename=${fileTokens[0]}
     filename=$( echo "$filename" | cut -c2- )
