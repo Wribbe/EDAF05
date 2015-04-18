@@ -10,14 +10,11 @@ def main():
         for sub_letter_list in sub_words:
             make_nodes(root, sub_letter_list, word)
 
-    structure = {}
-    for word in lines:
-        structure[word] = get_words(root, word)
-        print "{} : {}".format(word, get_words(root, word))
-
     nodes = {}
-    for node_name, children_list in structure.iteritems():
+    children = {}
+    for node_name in lines:
         current_node = nodes.get(node_name)
+        children_list = get_children(root, node_name)
         if current_node == None:
             new_node = Node(node_name)
             nodes[node_name] = new_node
@@ -36,9 +33,6 @@ def main():
         reset_nodes(nodes.values())
         from_word, to_word = line.split()
         find_path_in_nodes(from_word, to_word, nodes)
-#        find_path(from_word, to_word, structure)
-
-#    print_nodes(root)
 
 def reset_nodes(nodes):
     for node in nodes:
@@ -47,7 +41,6 @@ def reset_nodes(nodes):
 def find_path_in_nodes(from_word, to_word, nodes):
     queue = [nodes[from_word]]
     next_items = []
-    visited = []
     depth = 0
     while len(queue) > 0:
         current_node = queue.pop(0)
@@ -62,26 +55,7 @@ def find_path_in_nodes(from_word, to_word, nodes):
             next_items = []
             depth += 1
 
-def find_path(from_word, to_word, structure):
-    queue = [from_word]
-    next_queue = []
-    depth = 0
-    path = []
-    while len(queue) > 0:
-        current_word = queue.pop(0)
-        if current_word == to_word:
-            print "found: {} -- {} at depth: {}".format(from_word, to_word, depth)
-            return
-        for word in structure[current_word]:
-            queue.append(word)
-        #    next_queue.append(word)
-        #if len(queue) == 0:
-        #    depth += 1
-        #    queue.extend(next_queue)
-        #    next_queue = []
-    print "did not find path for: {} -- {}".format(from_word, to_word)
-
-def get_words(root, word):
+def get_children(root, word):
     current_node = root
     original_word = word
     word = sorted(word[1:])
@@ -96,7 +70,6 @@ def get_words(root, word):
 
 def make_nodes(root, letters, word):
     current_node = root
-    #print "cerating node for: {} with letters {}.".format(word, letters)
     for letter in letters:
         child = current_node.children.get(letter)
         if child:
@@ -105,20 +78,6 @@ def make_nodes(root, letters, word):
             current_node = current_node.append(letter)
     if not word in current_node.words:
         current_node.words.append(word)
-    #print "node {} currently has words: {}".format(current_node.name, current_node.words)
-
-def print_nodes(root):
-    queue = [root]
-    next_queue = []
-    while len(queue) > 0:
-        current_node = queue.pop(0)
-        print current_node.name,
-        for node in current_node.children.values():
-            next_queue.append(node)
-        if len(queue) == 0:
-            queue.extend(next_queue)
-            next_queue = []
-            print
 
 class Node(object):
 
@@ -143,6 +102,19 @@ def get_subwords(word):
         temp_word.remove(letter)
         subwords.append(temp_word)
     return (subwords, original_word)
+
+def print_nodes(root):
+    queue = [root]
+    next_queue = []
+    while len(queue) > 0:
+        current_node = queue.pop(0)
+        print current_node.name,
+        for node in current_node.children.values():
+            next_queue.append(node)
+        if len(queue) == 0:
+            queue.extend(next_queue)
+            next_queue = []
+            print
 
 if __name__ == "__main__":
     main()
