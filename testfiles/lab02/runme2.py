@@ -2,9 +2,6 @@ import sys
 
 def main():
 
-
-def dictionary_solution():
-
     # Get and massage input.
     lines = [x.strip() for x in open(sys.argv[1]).readlines()]
 
@@ -37,6 +34,7 @@ def dictionary_solution():
                 current_node.children[child_name] = new_child
                 nodes[child_name] = new_child
 
+    # Get path test input from input file.
     compare_lines = [x.strip() for x in open(sys.argv[2]).readlines()]
     for line in compare_lines:
         reset_nodes(nodes.values())
