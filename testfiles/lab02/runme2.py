@@ -1,17 +1,26 @@
 import sys
 
 def main():
+
+
+def dictionary_solution():
+
+    # Get and massage input.
     lines = [x.strip() for x in open(sys.argv[1]).readlines()]
+
+    # Create and store tuples of ([sub_words], word).
     tuples = []
     for line in lines:
         tuples.append(get_subwords(line))
+
+    # Create association node structure based on sublists with root as base.
     root = Node("root")
     for sub_words, word in tuples:
         for sub_letter_list in sub_words:
             make_nodes(root, sub_letter_list, word)
 
+    # Create and link all nodes in a flat dictionary.  
     nodes = {}
-    children = {}
     for node_name in lines:
         current_node = nodes.get(node_name)
         children_list = get_children(root, node_name)
