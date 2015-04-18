@@ -16,7 +16,7 @@ def main():
         for sub_letter_list in sub_words:
             make_nodes(root, sub_letter_list, word)
 
-    # Create and link all nodes in a flat dictionary.  
+    # Create and link all nodes in a flat dictionary.
     nodes = {}
     for node_name in lines:
         current_node = nodes.get(node_name)
@@ -35,32 +35,43 @@ def main():
                 nodes[child_name] = new_child
 
     # Get path test input from input file.
+    paths = []
     compare_lines = [x.strip() for x in open(sys.argv[2]).readlines()]
     for line in compare_lines:
         reset_nodes(nodes.values())
         from_word, to_word = line.split()
-        find_path_in_nodes(from_word, to_word, nodes)
+        depth, path = find_path_in_nodes(from_word, to_word, nodes)
+        print depth
+        if path: 
+            paths.append(path)
+    sys.stderr.write("\n".join(paths))
 
 def reset_nodes(nodes):
     for node in nodes:
         node.visited = ""
 
 def find_path_in_nodes(from_word, to_word, nodes):
-    queue = [nodes[from_word]]
+    queue = [[nodes[from_word]]]
     next_items = []
     depth = 0
-    while len(queue) > 0:
-        current_node = queue.pop(0)
+    while queue:
+        current_path = queue.pop(0)
+        current_node = current_path[-1]
         if current_node.name == to_word:
-            print "Found path from {} to {} with depth {}.".format(from_word, to_word, depth)
-            return
+            return (depth, " --> ".join([x.name for x in current_path]))
         if not current_node.visited:
-            next_items.extend(current_node.children.values())
+            children = current_node.children.values()
+            for child in children:
+                if not child.visited:
+                    new_path = list(current_path)
+                    new_path.append(child)
+                    next_items.append(new_path)
             current_node.visited = "visited"
-        if len(queue) == 0:
+        if not queue:
             queue.extend(next_items)
             next_items = []
             depth += 1
+    return (-1, "")
 
 def get_children(root, word):
     current_node = root
