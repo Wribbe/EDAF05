@@ -33,10 +33,34 @@ def main():
 
     compare_lines = [x.strip() for x in open(sys.argv[2]).readlines()]
     for line in compare_lines:
+        reset_nodes(nodes.values())
         from_word, to_word = line.split()
+        find_path_in_nodes(from_word, to_word, nodes)
 #        find_path(from_word, to_word, structure)
 
 #    print_nodes(root)
+
+def reset_nodes(nodes):
+    for node in nodes:
+        node.visited = ""
+
+def find_path_in_nodes(from_word, to_word, nodes):
+    queue = [nodes[from_word]]
+    next_items = []
+    visited = []
+    depth = 0
+    while len(queue) > 0:
+        current_node = queue.pop(0)
+        if current_node.name == to_word:
+            print "Found path from {} to {} with depth {}.".format(from_word, to_word, depth)
+            return
+        if not current_node.visited:
+            next_items.extend(current_node.children.values())
+            current_node.visited = "visited"
+        if len(queue) == 0:
+            queue.extend(next_items)
+            next_items = []
+            depth += 1
 
 def find_path(from_word, to_word, structure):
     queue = [from_word]
@@ -97,11 +121,12 @@ def print_nodes(root):
             print
 
 class Node(object):
-    
+
     def __init__(self, name):
         self.children = {}
         self.name = name
         self.words = []
+        self.visited = ""
 
     def append(self, name):
         child = Node(name)
