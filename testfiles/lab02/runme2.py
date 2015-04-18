@@ -69,10 +69,7 @@ def get_children(root, word):
     for letter in word:
         current_node = current_node.children.get(letter)
     words = list(current_node.words)
-    try:
-        words.remove(original_word)
-    except:
-        pass
+    words.remove(original_word)
     return words
 
 def make_nodes(root, letters, word):
@@ -109,19 +106,6 @@ def get_subwords(word):
         temp_word.remove(letter)
         subwords.append(temp_word)
     return (subwords, original_word)
-
-def print_nodes(root):
-    queue = [root]
-    next_queue = []
-    while len(queue) > 0:
-        current_node = queue.pop(0)
-        print current_node.name,
-        for node in current_node.children.values():
-            next_queue.append(node)
-        if len(queue) == 0:
-            queue.extend(next_queue)
-            next_queue = []
-            print
 
 if __name__ == "__main__":
     main()
