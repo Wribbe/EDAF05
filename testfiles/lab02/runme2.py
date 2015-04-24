@@ -16,31 +16,12 @@ def main():
         for sub_letter_list in sub_words:
             make_nodes(root, sub_letter_list, word)
 
-    # Create and link all nodes in a flat dictionary.
-    nodes = {}
-    for node_name in lines:
-        current_node = nodes.get(node_name)
-        children_list = get_children(root, node_name)
-        if current_node == None:
-            new_node = Node(node_name)
-            nodes[node_name] = new_node
-            current_node = new_node
-        for child_name in children_list:
-            child = nodes.get(child_name)
-            if child:
-                current_node.children[child_name] = child
-            else:
-                new_child = Node(child_name)
-                current_node.children[child_name] = new_child
-                nodes[child_name] = new_child
-
     # Get path test input from input file.
     paths = []
     compare_lines = [x.strip() for x in open(sys.argv[2]).readlines()]
     for line in compare_lines:
-        reset_nodes(nodes.values())
         from_word, to_word = line.split()
-        depth, path = find_path_in_nodes(from_word, to_word, nodes)
+        depth, path = find_path_with_subword_tree(from_word, to_word, root)
         print depth
         if path: 
             paths.append(path)
@@ -50,26 +31,28 @@ def reset_nodes(nodes):
     for node in nodes:
         node.visited = ""
 
-def find_path_in_nodes(from_word, to_word, nodes):
-    queue = [[nodes[from_word]]]
-    next_items = []
+def find_path_with_subword_tree(from_word, to_word, tree_root):
+
+    queue = [[from_word]]
+    next_queue = []
+    visited = {}
     depth = 0
     while queue:
         current_path = queue.pop(0)
-        current_node = current_path[-1]
-        if current_node.name == to_word:
-            return (depth, " --> ".join([x.name for x in current_path]))
-        if not current_node.visited:
-            children = current_node.children.values()
+        current_word = current_path[-1]
+        if current_word == to_word:
+            return (depth, " --> ".join(current_path))
+        if not visited.get(current_word):
+            children = get_children(tree_root, current_word)
             for child in children:
-                if not child.visited:
+                if not visited.get(child):
                     new_path = list(current_path)
                     new_path.append(child)
-                    next_items.append(new_path)
-            current_node.visited = "visited"
+                    next_queue.append(new_path)
+            visited[current_word] = True
         if not queue:
-            queue.extend(next_items)
-            next_items = []
+            queue.extend(next_queue)
+            next_queue = []
             depth += 1
     return (-1, "")
 
@@ -100,7 +83,7 @@ class Node(object):
         self.children = {}
         self.name = name
         self.words = []
-        self.visited = ""
+        self.parent = ""
 
     def append(self, name):
         child = Node(name)
