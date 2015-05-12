@@ -23,7 +23,7 @@ def main():
     san_diego_node = cities['San Diego'].connections
     current_node = san_diego_node
     while(True):
-        print(current_node.weight)
+        print "{} : {}".format(current_node.destination, current_node.weight)
         current_node = current_node.next
         if current_node == "End":
             break;
@@ -62,6 +62,7 @@ class Node(object):
                     return
                 previous_connection = current_connection
                 current_connection = current_connection.next
+            previous_connection.next = ListNode(weight, destination, current_connection)
 
 
 if __name__ == "__main__":
