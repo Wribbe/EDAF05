@@ -44,8 +44,24 @@ class Node(object):
 
     def add_connection(self,destination,weight):
         current_connection = self.connections
-        new_node = ListNode(weight, destination, current_connection)
-        self.connections = new_node
+        if current_connection.destination == "End":
+            new_node = ListNode(weight, destination, current_connection)
+            self.connections = new_node
+        else:
+            if(int(weight) < int(self.connections.weight)):
+                new_node = ListNode(weight, destination, self.connections)
+                self.connections = new_node
+                return
+            previous_connection = self.connections
+            while(current_connection.destination != "End"):
+                current_weight = int(current_connection.weight)
+                new_weight = int(weight)
+                if (new_weight < current_weight):
+                    new_node = ListNode(weight, destination, current_connection)
+                    previous_connection.next = new_node
+                    return
+                previous_connection = current_connection
+                current_connection = current_connection.next
 
 
 if __name__ == "__main__":
