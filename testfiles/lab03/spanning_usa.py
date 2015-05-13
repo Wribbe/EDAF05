@@ -9,9 +9,30 @@ def main():
 
     start_node = cities[start_city]
     start_node.visited = True
+    current_path = []
 
-    current_path = [start_node]
+    total_weight = 0
     current_node = start_node
+
+    print_list_node(start_node)
+    while(True):
+        next_connection = current_node.pop()
+        next_destination = next_connection.destination
+        if(next_destination == "End"):
+            break
+        total_weight += int(next_connection.weight)
+        current_node.visited = True
+
+        current_node = cities[next_destination]
+        current_path.append(current_node)
+#        while(current_node.visited):
+#            next_destination = current_node.pop().destination
+#            print "Already been in {}, trying {}".format(current_node.name, next_destination)
+#            if next_destination == "End":
+#                next_destination = 
+#                print "Depleted all destinations from {}, jumping to {}"
+#                break
+#            current_node = cities[next_destination]
 
 def parse_input():
 
