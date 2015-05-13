@@ -1,12 +1,35 @@
 
 def main():
 
-    lines = [x.strip().replace('"','') for x in open("USA-highway-miles.in").readlines()]
+    cities = parse_input()
 
-    distances = False
+    start_city = cities.keys()[0]
+
+    print "starting in {}".format(start_city)
+
+    start_node = cities[start_city]
+    start_node.visited = True
+
+    current_path = [start_node]
+    current_node = start_node
+    while(True):
+        next_connection = current_node.pop()
+        next_destination = next_connection.destination
+        if cities[next_destination].connections.destination == "End":
+            print "Theres is only a dead end at {}".format(cities[next_destination].name)
+            print [x.name for x in current_path]
+            break
+        else:
+            current_node = cities[next_destination]
+            current_path.append(current_node)
+        print "next connection is to {}.".format(next_destination)
+
+
+def parse_input():
 
     cities = {}
-
+    lines = [x.strip().replace('"','') for x in open("USA-highway-miles.in").readlines()]
+    distances = False
     for line in lines:
         if not distances:
             if "--" in line:
@@ -19,60 +42,7 @@ def main():
             distance = tokens.pop(-1).replace("[",'').replace("]",'')
             end = " ".join(tokens)
             cities[start].add_connection(end, distance)
-
-    num_cities = len(cities.keys())
-    print "number of cities: {}".format(num_cities)
-    added = 0
-    current_path = []
-    total_weight = 0
-    start_key = cities.keys()[0]
-    start_node = cities[start_key];
-    print "starting at city {}".format(start_key)
-    start_node.visited = True
-    added += 1
-    current_path.append(start_node)
-    current_node = start_node
-    previous_node = current_node
-    while(added != num_cities):
-        current_connection = current_node.pop()
-        while(current_connection.destination == "End"):
-            current_connection = back_up(current_path)
-        next_node = cities[current_connection.destination]
-        while(next_node.visited == True): 
-            current_connection = current_node.pop()
-            while (current_connection.destination == 'End'):
-                print "there was only a dead end at {}, backing up".format(current_node.name)
-                current_connection = back_up(current_path)
-            print "Already visited {}, trying {}".format(next_node.name, current_connection.destination)
-            next_node = cities[current_connection.destination]
-
-        # the current next_node has not been visted.
-        # add the current_connection.weight to total_weight
-        # and mark the next_node as visited
-        # make next_node into current_node
-
-        total_weight += int(current_connection.weight)
-        previous_node = current_node
-        current_node = next_node
-        current_node.visited = True
-        added += 1
-        current_path.append(current_node)
-        print "added {} to spanning tree.".format(current_node.name)
-
-def back_up(node_path):
-    print [x.name for x in node_path]
-    dead_end = node_path.pop(-1) # get rid of current dead end.
-    previous_city = node_path.pop(-1)
-    current_connection = previous_city.pop()
-    while(current_connection.destination == "End"):
-        dead_end = previous_city
-        previous_city = node_path.pop(-1)
-        print "Error: Encounterd End at {}, backing up to {}".format(dead_end.name,previous_city.name)
-        current_node = previous_city
-        current_connection = current_node.pop()
-    print "returning connection to {}, from {}".format(current_connection.destination, previous_city.name)
-    return current_connection
-
+    return cities
 
 def print_list_node(node):
     list_node = node.connections
