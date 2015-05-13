@@ -64,6 +64,13 @@ class Node(object):
                 current_connection = current_connection.next
             previous_connection.next = ListNode(weight, destination, current_connection)
 
+    def pop(self):
+        if self.connections.destination == "End":
+            return ListNode()
+        else:
+            temp = self.connections
+            self.connections = self.connections.next
+            return temp
 
 if __name__ == "__main__":
     main()
