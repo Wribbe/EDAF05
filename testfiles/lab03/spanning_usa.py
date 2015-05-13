@@ -23,21 +23,27 @@ def main():
     num_cities = len(cities.keys())
     print "number of cities: {}".format(num_cities)
     added = 0
+    current_path = []
     total_weight = 0
     start_key = cities.keys()[0]
     start_node = cities[start_key];
     print "starting at city {}".format(start_key)
     start_node.visited = True
     added += 1
+    current_path.append(start_node)
     current_node = start_node
+    previous_node = current_node
     while(added != num_cities):
         current_connection = current_node.pop()
-        if current_connection.destination == "End":
-            print "Error: Encounterd End, count was {}".format(added)
-            return
+        while(current_connection.destination == "End"):
+            current_connection = back_up(current_path)
         next_node = cities[current_connection.destination]
         while(next_node.visited == True): 
             current_connection = current_node.pop()
+            while (current_connection.destination == 'End'):
+                print "there was only a dead end at {}, backing up".format(current_node.name)
+                current_connection = back_up(current_path)
+            print "Already visited {}, trying {}".format(next_node.name, current_connection.destination)
             next_node = cities[current_connection.destination]
 
         # the current next_node has not been visted.
@@ -46,10 +52,33 @@ def main():
         # make next_node into current_node
 
         total_weight += int(current_connection.weight)
+        previous_node = current_node
         current_node = next_node
         current_node.visited = True
         added += 1
+        current_path.append(current_node)
         print "added {} to spanning tree.".format(current_node.name)
+
+def back_up(node_path):
+    print [x.name for x in node_path]
+    dead_end = node_path.pop(-1) # get rid of current dead end.
+    previous_city = node_path.pop(-1)
+    current_connection = previous_city.pop()
+    while(current_connection.destination == "End"):
+        dead_end = previous_city
+        previous_city = node_path.pop(-1)
+        print "Error: Encounterd End at {}, backing up to {}".format(dead_end.name,previous_city.name)
+        current_node = previous_city
+        current_connection = current_node.pop()
+    print "returning connection to {}, from {}".format(current_connection.destination, previous_city.name)
+    return current_connection
+
+
+def print_list_node(node):
+    list_node = node.connections
+    while(list_node.next != "End"):
+        print "{} : {}".format(list_node.destination, list_node.weight)
+        list_node = list_node.next
 
 class ListNode(object):
 
