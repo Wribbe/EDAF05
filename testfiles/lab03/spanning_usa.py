@@ -12,18 +12,6 @@ def main():
 
     current_path = [start_node]
     current_node = start_node
-    while(True):
-        next_connection = current_node.pop()
-        next_destination = next_connection.destination
-        if cities[next_destination].connections.destination == "End":
-            print "Theres is only a dead end at {}".format(cities[next_destination].name)
-            print [x.name for x in current_path]
-            break
-        else:
-            current_node = cities[next_destination]
-            current_path.append(current_node)
-        print "next connection is to {}.".format(next_destination)
-
 
 def parse_input():
 
@@ -42,6 +30,7 @@ def parse_input():
             distance = tokens.pop(-1).replace("[",'').replace("]",'')
             end = " ".join(tokens)
             cities[start].add_connection(end, distance)
+            cities[end].add_connection(start, distance)
     return cities
 
 def print_list_node(node):
