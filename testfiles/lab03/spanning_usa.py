@@ -3,12 +3,10 @@ import heapq
 def main():
 
     cities = parse_input()
-    connections = cities[cities.keys()[0]][1]
-    while(True):
-        try:
-            print heapq.heappop(connections)
-        except:
-            break
+    starting_city = cities.keys()[0]
+    visited = set()
+
+
 
 def parse_input():
 
@@ -24,6 +22,7 @@ def parse_input():
             distance = tokens.pop(-1).replace('[','').replace(']','')
             end = " ".join(tokens)
             heapq.heappush(cities[start][1], (int(distance), end))
+            heapq.heappush(cities[end][1], (int(distance), start))
         else:
             cities[line] = (line, [])
     return cities
