@@ -3,10 +3,33 @@ import heapq
 def main():
 
     cities = parse_input()
-    starting_city = cities.keys()[0]
+    current_city = cities.keys()[0]
     visited = set()
 
+    num_cities = len(cities)
+    total_weight = 0
 
+    new_heap = []
+
+    # add fist cities connections to new_heap
+    for distance, next_city in cities[current_city][1]:
+        heapq.heappush(new_heap, (distance, next_city))
+
+    visited.add(current_city)
+
+    # data structure ("CityName",heap_list)
+
+    while(len(visited) != num_cities):
+        distance, next_city = heapq.heappop(new_heap)
+        while(next_city in visited):
+            distance, next_city = heapq.heappop(new_heap)
+        total_weight += distance
+        current_city = next_city
+        for distance, next_city in cities[current_city][1]:
+            heapq.heappush(new_heap, (distance, next_city))
+        visited.add(current_city)
+
+    print total_weight
 
 def parse_input():
 
