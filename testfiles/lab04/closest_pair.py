@@ -1,107 +1,61 @@
-from heapq import *
 import math
+from heapq import *
 
 def main():
-
-    lines = [" ".join(x.strip().split()[1:])
-             for x in open("files/rl11849.tsp").readlines()
-             if x.split()[0].isdigit()]
-
-    x_heap = []
-    y_heap = []
-
+    lines = parse_input("testinput")
+    points = []
     for num, line in enumerate(lines):
-        x, y = line.split()
-        x = float(x)
-        y = float(y)
-        heappush(x_heap, (float(x), "{},{},{}".format(num,x,y)))
-        heappush(y_heap, (float(y), "{},{},{}".format(num,x,y)))
+        points.append(Point("{} {}".format(num,line)))
+    min_dist = calc_3dist(points)
 
-    p_x = heapsort(x_heap)
-    p_y = heapsort(y_heap)
+    print min_dist
 
-    print closest_pair_rec(p_x, p_y)
+def calc_3dist(points):
+    heap = []
+    for num, point in enumerate(points):
+        for second_point in points[num+1:]:
+            distance = point.distance(second_point)
+            push_dist(heap, distance)
+    return heappop(heap)
 
-def closest_pair_rec(px, py):
-    xlen = len(px)
+def push_dist(heap, distance):
+    heappush(heap, distance.heap_format())
 
-    # px[x] = (x_pos, (num, x_pos, y_pos))
+def parse_input(filename):
+    return [x.strip() for x in open(filename).readlines()]
 
-    if xlen <= 3:
-        heap = []
-        if xlen <= 1:
-            return 0
-        elif xlen == 2:
-            num1, x1, y1 = px[0][1].split(',')
-            num2, x2, y2 = px[1][1].split(',')
-            heappush(heap, (distance(x1,x2,y1,y2), (num1, num2)))
-        elif xlen == 3:
-            num1, x1, y1 = px[0][1].split(',')
-            num2, x2, y2 = px[1][1].split(',')
-            num3, x3, y3 = px[1][1].split(',')
-            heappush(heap, (distance(x1,x2,y1,y2), (num1, num2)))
-            heappush(heap, (distance(x1,x3,y1,y3), (num1, num3)))
-            heappush(heap, (distance(x2,x3,y2,y3), (num2, num3)))
-        return_value = heappop(heap)
-        return return_value
-    else:
-        mid = xlen/2
-        min_left = closest_pair_rec(px[:mid], py[:mid])
-        min_right = closest_pair_rec(px[mid:], py[mid:])
+class Point(object):
 
-        if min_left[0] == 0.0:
-            delta = min_right[0]
-        elif min_right[0] == 0.0:
-            delta = min_left[0]
-        else:
-            delta = min(min_left[0],min_right[0])
+    def __init__(self, coords):
+        num, x, y = [float(coord) for coord in coords.split()]
+        self.num = int(num)
+        self.x = float(x)
+        self.y = float(y)
 
-        x_max = px[mid:][-1][0]
+    def distance(self, point):
+        return Distance(math.sqrt(math.pow(self.x-point.x,2)+math.pow(self.y-point.y,2)),
+                        self,
+                        point)
 
-        s = []
-        for point in px:
-            _, coords = point
-            num, x, y = [float(token) for token in coords.split(',')]
-            if abs(x_max-x) <= delta:
-                heappush(s, (y, (num, x, y)))
-        s = heapsort(s)
+    def __repr__(self):
+        return "{}: x:{} y:{}".format(self.num, self.x, self.y)
 
-        s_min_heap = []
-        for num, point in enumerate(s):
-            for diff_point in s[num:15]:
-                dist = pdistance(point, diff_point)
-                if dist < delta and dist != 0:
-                    heappush(s_min_heap, (dist, point, diff_point))
+class Distance(object):
 
-        if len(s_min_heap):
-#            print "return from min_heap"
-            return delta,heappop(s_min_heap)
-        elif min_left[0] < min_right[0]:
-#            print "return from min_left"
-            return min_left
-        else:
-#            print "return from min_right"
-            return min_right
+    def __init__(self, distance, point1, point2):
+        self.distance = distance
+        self.p1 = point1
+        self.p2 = point2
 
-def pdistance(point1, point2):
-    num1,x1,y1 = coords(point1)
-    num2,x2,y2 = coords(point2)
-    return distance(x1,y1,x2,y2)
+    def __repr__(self):
+        return "Distance: {} -- P1: {} <--> P2: {}".format(self.distance, self.p1, self.p2)
 
-def coords(point):
-    _, coords = point
-    num,x,y = coords
-    return num,x,y
+    def heap_format(self):
+        return self.distance, (self.p1, self.p2)
 
-def distance(x1,y1,x2,y2):
-    x1,y1,x2,y2 = [float(num) for num in [x1,y1,x2,y2]]
-    dist = math.sqrt(pow(x2-x1,2) + pow(y2-y1,2))
-    if dist == 0.0:
-        print "Returning 0.0..."
-    return dist
-
-def heapsort(heap):
-    return [heappop(heap) for _ in range(len(heap))]
-
+    def info(self):
+        print "Point#{} <--> Point#{} = {}".format(self.p1.num,
+                                                   self.p2.num,
+                                                   self.distance)
 if __name__ == "__main__":
     main()
