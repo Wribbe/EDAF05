@@ -1,8 +1,12 @@
 import heapq
 
 def main():
+    print_dist("USA-highway-miles.txt")
+    print_dist("tinyEWG-alpha.txt")
 
-    cities = parse_input()
+def print_dist(filename):
+
+    cities = parse_input(filename)
     current_city = cities.keys()[0]
     visited = set()
 
@@ -29,12 +33,12 @@ def main():
             heapq.heappush(new_heap, (distance, next_city))
         visited.add(current_city)
 
-    print total_weight
+    print "weight for {}: {}".format(filename,total_weight)
 
-def parse_input():
+def parse_input(filename):
 
     cities = {}
-    lines = [x.strip().replace('"','') for x in open("USA-highway-miles.in").readlines()]
+    lines = [x.strip().replace('"','') for x in open(filename).readlines()]
     parsing_distances = False
     for line in lines:
         if '--' in line:

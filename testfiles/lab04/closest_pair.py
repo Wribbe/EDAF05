@@ -2,8 +2,6 @@ import math
 from heapq import *
 import sys
 
-distances = {}
-
 def find(filename):
     lines = parse_input(filename)
     points = []
@@ -14,17 +12,19 @@ def find(filename):
     sorted_y = sorty(points)
 
     result = min_distance_recursive(sorted_x, sorted_y)
+    if "wc" in filename:
+        return "distance: {} -- P{} <--> P{}".format(result.distance, result.p1.num, result.p2.num)
     return result.distance
 
 def min_distance_recursive(sorted_x, sorted_y):
 
     if len(sorted_x) <= 3:
         dist = min_dist_3p(sorted_x, print_dist=False)
-        #print "returning dist: {}".format(dist)
         return dist
 
-    left_x, right_x = split_list(sorted_x)
-    left_y, right_y = split_list(sorted_y)
+    mid_x, left_x, right_x = split_list(sorted_x)
+
+    left_y, right_y = split_y(mid_x, sorted_y)
 
     min_dist_left = min_distance_recursive(left_x, left_y)
     min_dist_right = min_distance_recursive(right_x, right_y)
@@ -34,7 +34,7 @@ def min_distance_recursive(sorted_x, sorted_y):
 
     max_x = left_x[-1]
 
-    l_distances = distances_around_l(max_x, delta, left_x+right_x)
+    l_distances = distances_around_l(max_x, delta, left_x+right_x, left_y+right_y)
     if l_distances:
         return l_distances[0]
     elif min_dist_left.distance < min_dist_right.distance:
@@ -48,18 +48,24 @@ def min_dist_3p(points, print_dist=False):
         for second_point in points[num+1:]:
             distance = point.distance(second_point)
             push_dist(heap, distance)
-    if print_dist:
-        dists = [pop_dist(heap) for _ in range(len(heap))]
-        for dist in dists:
-            print dist
-        return dists[0]
     if len(heap) == 0:
         return Distance(-1, None, None)
     return pop_dist(heap)
 
 def split_list(point_list):
     mid = len(point_list)/2
-    return point_list[:mid], point_list[mid:]
+    mid_point = point_list[mid]
+    return mid_point.x, point_list[:mid], point_list[mid:]
+
+def split_y(mid_x, sorted_y):
+    left = []
+    right = []
+    for point in sorted_y:
+        if point.x <= mid_x:
+            left.append(point)
+        else:
+            right.append(point)
+    return left, right
 
 def get_delta(distance1, distance2):
 
@@ -71,11 +77,12 @@ def get_delta(distance1, distance2):
     else:
         return distance2
 
-def distances_around_l(max_x, delta, points):
+def distances_around_l(max_x, delta, points, ypoints):
     distance_heap = []
     increment = 15
+    points = points_around_l(max_x, delta, ypoints)
     for num, point in enumerate(points):
-        second_start = num+1
+        second_start = num+1 # Don't compare to your selfe
         for second_point in points[second_start:second_start+increment]:
             distance = point.distance(second_point)
             if distance.distance < delta:
@@ -83,11 +90,11 @@ def distances_around_l(max_x, delta, points):
     return [pop_dist(distance_heap) for _ in range(len(distance_heap))]
 
 def points_around_l(max_x, delta, points):
-    y_heap = []
+    y_points = []
     for point in points:
-        if point.distance(max_x).distance < delta:
-            heappush(y_heap, (point.y, point))
-    return [heappop(y_heap)[1] for _ in range(len(y_heap))]
+        if point.x - max_x.x < delta:
+            y_points.append(point)
+    return y_points
 
 
 #-----------------------------------------------------------------------
@@ -103,27 +110,12 @@ class Point(object):
         self.y = y
 
     def distance(self, point):
-        #    diffx = self.x-point.x
-        #    diffy = self.y-point.y
-        #    dist = Distance(math.sqrt((diffx*diffx)+(diffy*diffy)),
-        #                    self,
-        #                    point)
-        #    return dist #58.841
-        existing_distance = distances.get((self.num, point.num))
-        if existing_distance:
-            return existing_distance
-        else:
-            diffx = self.x-point.x
-            diffy = self.y-point.y
-            dist = Distance(math.sqrt((diffx*diffx)+(diffy*diffy)),
-                            self,
-                            point)
-            snum = self.num
-            pnum = point.num
-            distances[(snum,pnum)] = dist
-            distances[(pnum,snum)] = dist
-            return dist
-        #    #38.988
+        diffx = self.x-point.x
+        diffy = self.y-point.y
+        dist = Distance(math.sqrt(diffx**2+diffy**2),
+                        self,
+                        point)
+        return dist #58.841
 
     def __repr__(self):
         return "P{}: x:{} y:{}".format(self.num, self.x, self.y)
