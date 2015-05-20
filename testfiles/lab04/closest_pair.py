@@ -2,6 +2,8 @@ import math
 from heapq import *
 import sys
 
+distances = {}
+
 def find(filename):
     lines = parse_input(filename)
     points = []
@@ -101,9 +103,27 @@ class Point(object):
         self.y = y
 
     def distance(self, point):
-        return Distance(math.sqrt(math.pow(self.x-point.x,2)+math.pow(self.y-point.y,2)),
-                        self,
-                        point)
+        #    diffx = self.x-point.x
+        #    diffy = self.y-point.y
+        #    dist = Distance(math.sqrt((diffx*diffx)+(diffy*diffy)),
+        #                    self,
+        #                    point)
+        #    return dist #58.841
+        existing_distance = distances.get((self.num, point.num))
+        if existing_distance:
+            return existing_distance
+        else:
+            diffx = self.x-point.x
+            diffy = self.y-point.y
+            dist = Distance(math.sqrt((diffx*diffx)+(diffy*diffy)),
+                            self,
+                            point)
+            snum = self.num
+            pnum = point.num
+            distances[(snum,pnum)] = dist
+            distances[(pnum,snum)] = dist
+            return dist
+        #    #38.988
 
     def __repr__(self):
         return "P{}: x:{} y:{}".format(self.num, self.x, self.y)
