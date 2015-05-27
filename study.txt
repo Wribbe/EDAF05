@@ -1,0 +1,163 @@
+Reduction: Problem X polynomial-time (Cook) reduces to problem Y
+           if arbitrary instances of problem X can be solved using:
+             * Polynomial number of standard computational steps,
+               plus Polynomial number of calls to oracle that
+               solves problem Y.
+            Dvs: har man en algorithm som kan lösa Y så kan man
+                 använda denna i olika steg för att lösa problemet
+                 X.
+            => X <=_p Y (X polynomial-reduces to Y)
+            mest generella (det alla andra kan beskrivas i står till höger,
+            reduktionen går i "motsatt håll till "pilen""
+
+8. Interactability I
+
+  poly-time reductions
+    Algod. patterns: Reductions
+    Algod. anti-patterns: NP-completness
+      O(n^x) algo. unlikely.
+    Poly:
+      shortest path
+      min cut
+      2-sat
+      plan. 4-col.
+      bipartite vertex cover
+      matching
+      primary testing
+      linear programming
+
+    Prob no poly:
+      longest path
+      max cut
+      3-sat
+      plan. 3-col
+      vertex cover
+      3d-matching
+      factoring
+      integer linear programming
+
+    Classify problem:
+      prob. that can be solved in polyn. time and those that can't.
+      Suppose could solve X in polynt. what els could yous solve in polynt.?
+
+    Reduction:
+      Problem X polynomial-time (think cooking) reduces to problem Y
+      if arb. inst. of prob. X can be solved using:
+        * Polyn. num. of std. computat. steps in add. polyn. num of
+          calls to oracle that solves prob Y (yes/no)
+      Notation:
+        X <=_p Y (X reduces to Y) if Y polyn. time -> X polyn. time
+      Note:
+        Reductions classify prob. acc. to rel. diff.
+
+    Problems:
+      * Sets:
+        * Independent-set: subset of size k with E. endp. repr. only once.?
+                           (no nodes connected)
+            inp.: G=(V,E), int k
+            out.: yes/no
+        * Vertex cover: subset of size k with E. endp. repr. at least once.?
+                        (cover all edges with least nodes (vertexes))
+            inp.: G=(V,E), int k
+            out.: yes/no
+
+        Complexity relation:
+          Inv. to any above res. in the other; indep. set ==_p vert. cov.
+
+        * Set-Cover: coll. of max. size k that union of coll. eq. whole set?
+        Red.:
+          Set-cover reduces to vertex-cover (Vert.-cover <=_p set-cover)
+          met.: each set = node (vert.), pick nodes so all oth. nodes inc.
+
+      * Satifi.:
+        Constr. satisf. prob.:
+          Def (satisf):
+            * literal: var. or its negat.
+            * clause: disj. of literals
+            * conj. norm. form (PHI): conj. of clauses (C1`not`C2`not`C3..)
+        * SAT: does PHI have any satisf. truth assign.?
+        * 3-SAT: each clause cont. ex. 3 lit.
+        Red.:
+          3-SAT <=_p independents_set
+          met.: build triangles of all 3-clau., connect lit. to corr. nega.
+                pick a ind. set -> done. (you can't have the lit. and its
+                neg, hence the indep. set)
+
+      Review:
+        * Simpel equiv. indep. set ==_p vert.-cover
+        * Spec. case -> gen. case: vert.-cover <=_p set-cover
+        * Enc. with gad.: 3-sat <=_p Indep. set
+
+      Search problems:
+        Deci. prob.: Dose there exist a vertex cover of size <= k?
+        Sear. prob.: Find a vertex cover of size <= k.
+        Find a vert. cov:
+          Find a vert. v such that G - {v} has cov.siz. k-1, add v to
+          cov. (v is only vert. that cov. that edge)
+          Note:
+            Vertex-cover ==_p find-vert.-cover
+
+      Opt. prob.:
+        * desi. prob: exist cover of size <= k?
+        * sear. prob: find vert.-cov. of size <= k.
+        * opt. prob: find vert.-cov. min. size
+        How: (Bin.) search for size k* of min vert. cov.
+             sol. corres. sear. prob.
+
+        Note: vert.-cov. ==_p find-vert.-cov ==_p opt.-vert.-covj
+
+      Hamiltonian cycle:
+        Given undir. G=(V,E) exists a cycl. GAMMA every node in V?
+
+        Red: dir. hamcyk. <=_p undir. hamcyk. (dir. hamcyk. redu. to hamcyk.)
+
+      3-sat. redu. to dir. hamcyk.:
+        given inst PHI of 3-sat. const. dir.hamcyk. that has a hamcyk. iff
+        PHI is satisfiable.
+
+        const: given 3-sat instance PHI with n vari. and x_i and k clau.
+               const. G to have 2^n hamcyk. Int.: traverse path i from
+               left to right -> set var. x_i = true
+               (must hit all nodes, so if goes down side it must trav.
+               horiz. path)
+
+               For each calu. add a node and 6 edges.
+
+      3-sat redu. to long. path:
+        * redo hamcyk.
+        * remove last -> first link
+          => hamcyk. <=_p long. path
+
+      Traveling Salesman Problem:
+        Given n cities and pairwise dist.func. d(u,v), is there
+        a tour of length <= D?
+
+        Red: hamcyk. <=_p TSP (hamcyk redu. to TSP => hamcyk. is a special
+                               case of the TSP)
+
+      3-colorability:
+        3-sat redu. to 3-colo
+        const: add 6-node gadget for 3-sat blow x1,x2,x3 and base
+
+      Subset-sum:
+        subsum.: given natural numbers, and int. W, is there a subset
+                 that adds up to exactly W?
+        remark: with arithm. prob., inp. int. are enc. in bin.
+                poly-time redu. must be polyn. in bin. encoding.
+
+        Red.: 3-Sat <=_p subsum.
+
+      Partition: given natural numbers, v_1,..,v_n can be parted into two
+                 subsets that add up to same value 1/2 sum(v_i)?
+
+        Red: subsum. <=_p Partition
+
+      Scheduling with release times: Given subsum. instance w1-wn and target
+      w, const. instance of schedule that is feasible iff there exists a
+      subset that sums to exactly W.
+
+  Last:
+    (packing and covering): 3-sat <=_p indep.set <=_p vert.cov. <=_p set-cov.
+    (sequencing): 3-sat <=_p dir.hamcyk. <=_p hamcyk <=_p TSP
+    (partioning): 3-set <=_p graph-3-color
+    (numerical): 3-set <=_p subssum. <=_p scheduling
